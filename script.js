@@ -1,8 +1,12 @@
-// models フォルダにある全44個のファイルをリスト化
-const words = [];
-for (let i = 1; i <= 44; i++) {
-  words.push(`models/word${i}.glb`);
-}
+// 言葉を読み込む
+const maxModels = 100;
+for (let i = 1; i <= maxModels; i++) {
+  const url = `models/word${i}.glb`;
+
+  loader.load(
+    url,
+    (gltf) => {
+      const model = gltf.scene;
 
 // 言葉を降らせる関数
 function spawnWord() {
@@ -36,3 +40,4 @@ function spawnWord() {
 window.onload = () => {
   setInterval(spawnWord, 3000);
 };
+
