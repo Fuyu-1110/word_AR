@@ -1,22 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <title>言葉のプラネタリウム</title>
-    <!-- A-Frame本体 -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <!-- AR.js (WebARライブラリ) -->
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <!-- 自作スクリプト -->
-    <script src="script.js"></script>
-    <style>
-      body { margin: 0; overflow: hidden; }
-    </style>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene embedded arjs>
-      <!-- カメラ -->
-      <a-camera gps-camera rotation-reader></a-camera>
+    <a-scene>
+      <a-camera position="0 1.6 0"></a-camera>
     </a-scene>
+
+    <script>
+      // 最大読み込み数（存在しないファイルは無視される）
+      const maxModels = 100;
+      const words = [];
+
+      // models/word1.glb, word2.glb ... として格納されている前提
+      for (let i = 1; i <= maxModels; i++) {
+        words.push(`models/word${i}.glb`);
+      }
+
+      // 言葉を降らせる関数
+      function spawnWord() {
+        const scene = document.querySelector("a-scene");
+        const model = document.createElement("a-entity");
+
+        // ランダムにファイルを選ぶ
+        const choice = words[Math.floor(Math.random() * words.length)];
+
+        // ランダムなX座標 (-2～2)、Z座標 (-3～-8)
+        const x = (Math.random() * 4 - 2).toFixed(2);
+        const z = (Math.random() * -5 - 3).toFixed(2);
+
+        model.setAttribute("gltf-model", `url(${choice})`);
+        model.setAttribute("scale", "0.5 0.5 0.5");
+        model.setAttribute("position", `${x} 3 ${z}`);
+
+        // 落下アニメーション
+        model.setAttribute(
+          "animation",
+          `property: position; to: ${x} -2 ${z}; dur: 8000; easing: linear; loop: false`
+        );
+
+        scene.appendChild(model);
+
+        // 10秒後に削除（メモリ節約）
+        setTimeout(() => model.remove(), 10000);
+      }
+
+      // ページ読み込み時に3秒ごとにランダム生成
+      window.onload = () => {
+        setInterval(spawnWord, 3000);
+      };
+    </script>
   </body>
 </html>
