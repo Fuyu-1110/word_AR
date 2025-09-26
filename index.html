@@ -45,16 +45,13 @@
         scene.appendChild(model);
 
         // 10秒後に削除（メモリ節約）
-        setTimeout(() => model.remove(), 100000);
+        setTimeout(() => model.remove(), 10000);
       }
 
       // ページ読み込み時に3秒ごとにランダム生成
       window.onload = () => {
-        setInterval(spawnWord, 30000);
+        setInterval(spawnWord, 3000);
       };
     </script>
   </body>
 </html>
-
-
-
