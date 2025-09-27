@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <title>言葉のプラネタリウム</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-        <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
-        <a-scene
+    <a-scene
       arjs="trackingMethod: best; sourceType: webcam; sourceWidth: 640; sourceHeight: 480; debugUIEnabled: false;"
       vr-mode-ui="enabled: false"
-            renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true"
+      renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true"
     >
       <a-camera id="mainCamera" position="0 1.6 0"></a-camera>
     </a-scene>
@@ -32,7 +32,7 @@
         // ランダムにモデルを選ぶ
         const choice = words[Math.floor(Math.random() * words.length)];
 
-        // ★ カメラの現在地を取得
+        // カメラの現在地を取得
         const cameraPos = camera.getAttribute('position');
 
         // カメラ中心の円周上に配置
@@ -43,24 +43,22 @@
         const dx = Math.cos(angle) * radius;
         const dz = Math.sin(angle) * radius;
 
-        // ★ カメラの現在地にオフセットを加算して、ワールド座標を決定
+        // カメラの現在地にオフセットを加算して、ワールド座標を決定
         const x = (cameraPos.x + dx).toFixed(2);
         const z = (cameraPos.z + dz).toFixed(2);
         
-        // ★ 変更点3: 開始 Y座標を 3 から 8 に変更 (より高い場所から降る)
+        // Y座標設定
         const startY = 8;
-        // ★ 変更点4: 終了 Y座標を -2 から 0.5 に変更 (カメラの足元で消える)
-        const endY = 0.5;
-        // ★ 変更点5: 落下時間を 7000ms から 12000ms に変更 (よりゆっくり降る)
+        // ★ 変更点: 終点 Y座標を -0.5 に変更 (より床下で消える)
+        const endY = -0.5; 
         const duration = 12000;
-        // ★ 変更点6: 削除時間を落下時間に合わせて変更
         const removalTime = duration + 1000;
 
         model.setAttribute("gltf-model", `url(${choice})`);
         model.setAttribute("scale", "0.6 0.6 0.6");
-        model.setAttribute("position", `${x} ${startY} ${z}`); // Y座標8から落下
+        model.setAttribute("position", `${x} ${startY} ${z}`);
         
-        // look-at で常にカメラの方を向かせる
+        // ★ 変更点なし: look-at で常にカメラの方を向かせる (念のため再確認)
         model.setAttribute("look-at", "#mainCamera"); 
 
         // 落下アニメーション
