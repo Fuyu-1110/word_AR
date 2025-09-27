@@ -11,6 +11,7 @@
       <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
     </a-scene>
 
+    <!-- 🔽 ここにさっきの修正版コードを入れる -->
     <script>
       const maxModels = 100;
       const words = [];
@@ -24,22 +25,20 @@
         const model = document.createElement("a-entity");
 
         const choice = words[Math.floor(Math.random() * words.length)];
+        console.log("選ばれたモデル:", choice);  // ★デバッグ出力
 
-        // ランダムな球面座標を生成（ユーザーを中心に360°で配置）
-        const radius = 5; // 出現する球の半径
-        const theta = Math.random() * 2 * Math.PI; // 水平方向の角度
-        const phi = Math.random() * Math.PI; // 垂直方向の角度
+        const radius = 5;
+        const theta = Math.random() * 2 * Math.PI;
+        const phi = Math.random() * Math.PI;
 
-        // 球面座標をデカルト座標に変換
         const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.cos(phi) + 2; // 少し上から出す
+        const y = radius * Math.cos(phi) + 2;
         const z = radius * Math.sin(phi) * Math.sin(theta);
 
         model.setAttribute("gltf-model", `url(${choice})`);
         model.setAttribute("scale", "0.5 0.5 0.5");
         model.setAttribute("position", `${x} ${y} ${z}`);
 
-        // 落下先は真下に（x,zは同じ、yだけ落とす）
         model.setAttribute(
           "animation",
           `property: position; to: ${x} -2 ${z}; dur: 8000; easing: linear; loop: false`
@@ -51,6 +50,7 @@
       }
 
       window.onload = () => {
+        console.log("ページ読み込み完了。spawnWordを開始します");
         setInterval(spawnWord, 3000);
       };
     </script>
