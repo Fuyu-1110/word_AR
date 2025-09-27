@@ -5,7 +5,7 @@
     <title>言葉のプラネタリウム</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene
@@ -17,6 +17,20 @@
     </a-scene>
 
     <script>
+      // ★ 変更点2: カスタムコンポーネントの定義
+      AFRAME.registerComponent('always-look-at', {
+        init: function () {
+          this.camera = document.querySelector('#mainCamera');
+        },
+        tick: function () {
+          if (this.camera) {
+            // 毎フレーム、文字エンティティの3Dオブジェクトをカメラの位置に向かせる
+            this.el.object3D.lookAt(this.camera.object3D.position);
+          }
+        }
+      });
+      // ----------------------------------------------------
+
       // モデルリスト
       const maxModels = 100;
       const words = [];
@@ -49,8 +63,7 @@
         
         // Y座標設定
         const startY = 8;
-        // ★ 変更点: 終点 Y座標を -0.5 に変更 (より床下で消える)
-        const endY = -0.5; 
+        const endY = -0.5; // 終点Y座標は-0.5のまま維持
         const duration = 12000;
         const removalTime = duration + 1000;
 
@@ -58,8 +71,9 @@
         model.setAttribute("scale", "0.6 0.6 0.6");
         model.setAttribute("position", `${x} ${startY} ${z}`);
         
-        // ★ 変更点なし: look-at で常にカメラの方を向かせる (念のため再確認)
-        model.setAttribute("look-at", "#mainCamera"); 
+        // ★ 変更点3: look-at を削除し、カスタムコンポーネントに置き換え
+        // model.setAttribute("look-at", "#mainCamera"); 
+        model.setAttribute("always-look-at", "");
 
         // 落下アニメーション
         model.setAttribute(
