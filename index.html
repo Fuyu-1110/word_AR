@@ -11,7 +11,6 @@
       <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
     </a-scene>
 
-    <!-- 🔽 ここにさっきの修正版コードを入れる -->
     <script>
       const maxModels = 100;
       const words = [];
@@ -25,20 +24,21 @@
         const model = document.createElement("a-entity");
 
         const choice = words[Math.floor(Math.random() * words.length)];
-        console.log("選ばれたモデル:", choice);  // ★デバッグ出力
+        console.log("選ばれたモデル:", choice);
 
-        const radius = 5;
-        const theta = Math.random() * 2 * Math.PI;
-        const phi = Math.random() * Math.PI;
+        const radius = 5; // 自分を中心とする円の半径
+        const theta = Math.random() * 2 * Math.PI; // 角度ランダム
 
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.cos(phi) + 2;
-        const z = radius * Math.sin(phi) * Math.sin(theta);
+        // 円周上の座標（高さは固定で上から）
+        const x = radius * Math.cos(theta);
+        const z = radius * Math.sin(theta);
+        const y = 3; // 出現高さ（常に頭上から降る）
 
         model.setAttribute("gltf-model", `url(${choice})`);
         model.setAttribute("scale", "0.5 0.5 0.5");
         model.setAttribute("position", `${x} ${y} ${z}`);
 
+        // 落下アニメーション（真下に落ちる）
         model.setAttribute(
           "animation",
           `property: position; to: ${x} -2 ${z}; dur: 8000; easing: linear; loop: false`
@@ -46,6 +46,7 @@
 
         scene.appendChild(model);
 
+        // 10秒後に削除してメモリ節約
         setTimeout(() => model.remove(), 10000);
       }
 
