@@ -5,15 +5,15 @@
     <title>言葉のプラネタリウム</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
         <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
   </head>
-    <body style="margin: 0; overflow: hidden;">
-            <a-scene
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+  <body style="margin: 0; overflow: hidden;">
+        <a-scene
+      arjs="trackingMethod: best; sourceType: webcam; sourceWidth: 640; sourceHeight: 480; debugUIEnabled: false;"
       vr-mode-ui="enabled: false"
-      renderer="alpha: true; antialias: true"
+            renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true"
     >
-            <a-camera id="mainCamera" position="0 1.6 0"></a-camera>
+      <a-camera id="mainCamera" position="0 1.6 0"></a-camera>
     </a-scene>
 
     <script>
@@ -46,24 +46,33 @@
         // ★ カメラの現在地にオフセットを加算して、ワールド座標を決定
         const x = (cameraPos.x + dx).toFixed(2);
         const z = (cameraPos.z + dz).toFixed(2);
+        
+        // ★ 変更点3: 開始 Y座標を 3 から 8 に変更 (より高い場所から降る)
+        const startY = 8;
+        // ★ 変更点4: 終了 Y座標を -2 から 0.5 に変更 (カメラの足元で消える)
+        const endY = 0.5;
+        // ★ 変更点5: 落下時間を 7000ms から 12000ms に変更 (よりゆっくり降る)
+        const duration = 12000;
+        // ★ 変更点6: 削除時間を落下時間に合わせて変更
+        const removalTime = duration + 1000;
 
         model.setAttribute("gltf-model", `url(${choice})`);
         model.setAttribute("scale", "0.6 0.6 0.6");
-        model.setAttribute("position", `${x} 3 ${z}`); // Y座標3から落下
-        
+        model.setAttribute("position", `${x} ${startY} ${z}`); // Y座標8から落下
+        
         // look-at で常にカメラの方を向かせる
-        model.setAttribute("look-at", "#mainCamera"); 
+        model.setAttribute("look-at", "#mainCamera"); 
 
         // 落下アニメーション
         model.setAttribute(
           "animation",
-          `property: position; to: ${x} -2 ${z}; dur: 7000; easing: linear; loop: false`
+          `property: position; to: ${x} ${endY} ${z}; dur: ${duration}; easing: linear; loop: false`
         );
 
         scene.appendChild(model);
 
-        // 10秒後に削除（メモリ節約）
-        setTimeout(() => model.remove(), 10000);
+        // 削除（メモリ節約）
+        setTimeout(() => model.remove(), removalTime);
       }
 
       // 0.8秒ごとに文字を生成
