@@ -4,38 +4,56 @@
     <meta charset="UTF-8" />
     <title>言葉のプラネタリウム</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- カメラ方向を向かせるためのコンポーネント -->
+    <script src="https://cdn.jsdelivr.net/gh/protyze/aframe-look-at-component/dist/aframe-look-at-component.min.js"></script>
   </head>
-  <body>
-    <!-- デフォルトの背景を消し、カメラ映像を背景にする -->
-    <a-scene
-      renderer="colorManagement: true;"
-      webxr="mode: ar;"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: true"
-    >
-      <a-camera position="0 1.6 0"></a-camera>
+  <body style="margin:0; overflow:hidden;">
+    <!-- カメラ映像を背景にするvideo -->
+    <video id="camera" autoplay playsinline muted 
+           style="position: fixed; width: 100%; height: 100%; object-fit: cover; z-index: -1;"></video>
+
+    <!-- A-Frameシーン（透明背景） -->
+    <a-scene embedded vr-mode-ui="enabled: false" background="color: transparent">
+      <a-camera id="mainCamera" position="0 1.6 0"></a-camera>
     </a-scene>
 
     <script>
+      // カメラ映像をvideoに流す
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          document.getElementById("camera").srcObject = stream;
+        })
+        .catch(err => console.error("カメラを利用できません:", err));
+
+      // モデルリスト
       const maxModels = 100;
       const words = [];
-
       for (let i = 1; i <= maxModels; i++) {
         words.push(`models/word${i}.glb`);
       }
 
       function spawnWord() {
         const scene = document.querySelector("a-scene");
+        const camera = document.querySelector("#mainCamera");
         const model = document.createElement("a-entity");
 
         const choice = words[Math.floor(Math.random() * words.length)];
-        const x = (Math.random() * 4 - 2).toFixed(2);
-        const z = (Math.random() * -5 - 3).toFixed(2);
 
+        // 半径を指定して円周上に配置
+        const radius = 3 + Math.random() * 2; // 3～5m
+        const angle = Math.random() * Math.PI * 2; // 0～360度
+        const x = (Math.cos(angle) * radius).toFixed(2);
+        const z = (Math.sin(angle) * radius).toFixed(2);
+
+        // 上から降るのでy=3からスタート
         model.setAttribute("gltf-model", `url(${choice})`);
         model.setAttribute("scale", "0.5 0.5 0.5");
         model.setAttribute("position", `${x} 3 ${z}`);
 
+        // カメラの方を向かせる
+        model.setAttribute("look-at", "#mainCamera");
+
+        // 落下アニメーション
         model.setAttribute(
           "animation",
           `property: position; to: ${x} -2 ${z}; dur: 8000; easing: linear; loop: false`
@@ -43,11 +61,13 @@
 
         scene.appendChild(model);
 
+        // 10秒後に削除
         setTimeout(() => model.remove(), 10000);
       }
 
+      // 1秒ごとに生成
       window.onload = () => {
-        setInterval(spawnWord, 3000);
+        setInterval(spawnWord, 1000);
       };
     </script>
   </body>
